@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+<div id="deletepost">
+  <h1>Delete Post: {{(post.key().id())}} ?</h1>
+    <div id="delete-post-buttons">
+      <form id="delete" method="post">
+        <input type="submit" name="ok" value="Ok">
+      </form>
+      <form id="cancel" method="get" action="/blog">
+        <input type="submit" name="cancel" value="Cancel">
+      </form>
+    </div>
+</div>
+  {{post.render() | safe}}
+{% endblock %}

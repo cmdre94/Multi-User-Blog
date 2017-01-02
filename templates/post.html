@@ -1,0 +1,47 @@
+<style>
+  h3{
+    margin: 0;
+  }
+
+ .post-heading {
+  display: flex;
+  background-color: rgba(247, 161, 161, 0.08);
+ }
+
+ .post-title, .post-date {
+  width: 50%;
+ }
+ .post-date {
+  text-align: right;
+ }
+ #footer {
+  display: flex;
+ }
+
+</style>
+
+<div class="post">
+  <hr>
+  <div class="post-heading">
+    <div class="post-title">
+      <h3>{{p.subject}}<h3>
+    </div>
+    <div class="post-date">
+      <h3>{{p.created.strftime("%b %d, %Y")}}<h3>
+    </div>
+  </div>
+  <div class="post-content">
+    {{p._render_text | safe}}
+  </div>
+  <div id="author">Author: {{p.author}} {{(p.key().id())}}</div>
+  <!--{% if p.author %}
+    <div id="footer">
+      <form id="edit" method="get" action="/blog/edit/{{(p.key().id())}}">
+          <input type="submit" value="Edit">
+      </form>
+      <form id="delete" method="get" action="">
+        <input type="submit" name="delete" value="Delete">
+      </form>
+    </div>
+  {% endif %}-->
+</div>

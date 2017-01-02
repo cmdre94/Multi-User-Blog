@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  {% for p in posts %}
+    {{ p.render() | safe }}
+    {% if user.name == p.author %}
+    	<div id="footer">
+    	  <form id="edit" method="get" action="/blog/edit/{{(p.key().id())}}">
+    	      <input type="submit" value="Edit">
+    	  </form>
+    	  <form id="delete" method="get" action="/blog/deletepost/{{(p.key().id())}}">
+          <input type="submit" name="delete" value="Delete">
+    	  </form>
+    	</div>
+  	{% endif %}
+    <br><br>
+  {% endfor %}
+
+{% endblock %}

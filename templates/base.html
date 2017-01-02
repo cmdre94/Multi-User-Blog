@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--<link type="text/css" rel="stylesheet" href="/static/main.css" />-->
+    <title>Multi-user Blog</title>
+    <style>
+    	body {
+    		font-family: sans-serif;
+    		margin: 5em;
+    	}
+    	h1 {
+    		color: black;
+    		text-align: center;
+    	}
+      .login-area {
+        display: flex;
+      }
+      .login-link {
+        text-decoration: none;
+      }
+      #login-out, #new-post {
+        width: 50%;
+      }
+      #new-post {
+        text-align: right;
+      }
+    	.main-title {
+    		text-decoration: none;
+    	}
+    	textarea {
+    		width: 400px;
+    		height: 400px;
+    	}
+      #author, #post {
+        font-size: 10px;
+      }
+      #deletepost {
+        margin-bottom: 0px;
+      }
+      #delete-post-buttons {
+        display: flex;
+        margin: 0 100px 0 255px;
+      }
+      #delete, #cancel {
+        float: right;
+        margin: 0 2px 0 2px;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <a href="/blog" class="main-title">
+    	<h1>Multi-user Blog</h1>
+    </a>
+  
+  	<div class="login-area">
+      {% if user %}
+          <div id="login-out">
+            {{user.name}} (<a class="login-link" href="/logout">logout</a>)
+          </div>
+          <div id="new-post">
+            <a class="login-link" href="/blog/newpost">create new post</a>
+          </div>
+      {% else %}
+        	<a class="login-link" href="/login">login</a>
+        	|
+        	<a class="login-link" href="/signup">signup</a>
+      {% endif %}
+    </div>
+  
+  
+    <div id="content">
+    	{% block content %}
+    	{% endblock %}
+      
+    </div>
+  </body>
+
+</html>
+

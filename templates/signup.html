@@ -1,0 +1,58 @@
+<!DOCTYPE.html!>
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+	<head>
+		<title>SIGN UP</title>
+	</head>
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			width: 800px;
+			margin: 8;
+		}
+		label {
+			display: flex;
+			margin: 0px;
+			width: 50%;
+		}
+		.error {
+			float: right;
+		}
+		h3, .input {
+			height: 25px;
+			width: 50%;
+			margin: 5 0 5 5;
+		}
+	</style>
+
+	<body>
+		<h2>SIGNUP</h2>
+
+		<form method="post">
+			<label>
+				<h3>Username</h3>
+				<input class="input" type="text" name="username" value="{{username}}">
+			</label>
+			<div class="error">{{error_username}}</div>
+			<label>
+				<h3>Password</h3>
+				<input class="input" type="text" name="password" value="{{password}}">
+			</label>
+			<div class="error">{{error_password}}</div>
+			<label>
+				<h3>Verify Password</h3>
+				<input class="input" type="text" name="verify" value="{{verify}}">
+			</label>
+			<div class="error">{{error_verify}}</div>
+			<label>
+				<h3>Email (optional)</h3>
+				<input class="input" type="text" name="title" value="{{email}}">
+			</label>
+			<div class="error">{{error_email}}</div>
+			<input type="submit">
+		</form>
+	</body>
+</html>
+{% endblock %}
