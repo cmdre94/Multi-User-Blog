@@ -4,6 +4,15 @@
 
   {% for p in posts %}
     {{ p.render() | safe }}
+
+    
+    {% for c in comments %}
+      {% if p.key().id() == c.c_post_id %}
+        {{ c.render() | safe}}
+      {% endif %}
+    {% endfor %}
+    
+
     {% if user.name == p.author %}
     	<div id="footer">
     	  <form id="edit" method="get" action="/blog/edit/{{(p.key().id())}}">
@@ -14,7 +23,22 @@
     	  </form>
     	</div>
   	{% endif %}
+
+    {% if user.name != p.author and user %}
+      <div class="like-comment-buttons">
+        <form method="get" action="">
+            <input id="like" type="submit" name="like" value="Like">
+        </form>
+        <form method="get" action="/blog/newcomment/{{((p.key().id()))}}">
+            <input id="comment" type="submit" name="comment" value="Comment">
+        </form>
+      </div>   
+    {% endif %}
     <br><br>
   {% endfor %}
+
+  <form method="get" action="/blog/history">
+    <input type="submit" value="History">
+  </form>
 
 {% endblock %}

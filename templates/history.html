@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Comment History</h1>
+
+	{% for c in comments %}
+      
+        {{ c.render() | safe}}
+
+    {% endfor %}
+{% endblock %}

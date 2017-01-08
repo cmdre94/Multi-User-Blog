@@ -65,6 +65,10 @@ def render_post(response, post):
     response.out.write('<b>' + post.subject + '</b><br>')
     response.out.write(post.content)
 
+#def render_comment(response, comment):
+#    response.out.write('<b>' + comment.c_author + '</b><br>')
+#    response.out.write(comment.c_content)
+
 #USER ==============================================================
 def make_salt(length = 5):
     return ''.join(random.choice(letters) for x in xrange(length))
@@ -122,30 +126,41 @@ class Post(db.Model):
     content = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
+    #comment = db.TextProperty()
     
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", p = self)
+
+class Comment(db.Model):
+    comment_author = db.StringProperty()
+    comment_content = db.StringProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+    c_post_id = db.IntegerProperty()
+    
+    def render(self):
+        self._render_text = self.comment_content.replace('\n', '<br>')
+        return render_str("comment.html", c = self)
 
 class BlogFront(Handler):
     def get(self):
         #posts = db.GqlQuery("select * from Post order by created desc limit 10")
         #self.render('front.html', posts = posts)
         posts = greetings = Post.all().order('-created')
-        self.render('front.html', posts = posts)
-
-    
+        comments = Comment.all().order('-created')
+        self.render('front.html', posts = posts, comments = comments)
 
 class PostPage(Handler):
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
-
+        comments = Comment.all().order('-created')
+        
         if not post:
             self.error(404)
             return
 
-        self.render("permalink.html", post = post)
+        self.render("permalink.html", post = post, comments = comments)
 
 class NewPost(Handler):
     def get(self):
@@ -226,7 +241,76 @@ class DeletePost(Handler):
                 post.delete()
                 self.render('front.html', post = post)
 
+class NewComment(Handler):
+    def get(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        post = db.get(key)
+
+        if not post:
+            self.error(404)
+            return
+
+        self.render("newcomment.html", post = post)
+
+    def post(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        post = db.get(key)
+
+        if not self.user:
+            self.redirect('/blog')
+
+        comment_content = self.request.get('comment_content')
+        comment_author = self.user.name
+        c_post_id = int(post_id)
+        
+        if comment_content:
+            #post.comment_content = comment_content
+            #post.comment_author = comment_author
+            #post.c_post_id = c_post_id
+            c = Comment(comment_content = comment_content,
+                        comment_author = comment_author,
+                        c_post_id = c_post_id) 
+            c.put()
+            #self.redirect('/blog', post = post)#%s' % str(post.key().id()))
+            self.redirect('/blog/?')
             
+        else:
+            post.comment_error = "content, please!"
+            self.render("newcomment.html", post = post)
+
+class DeleteComment(Handler):
+    def get(self, comment_id):
+        key = db.Key.from_path('Comment', int(comment_id))
+        comment = db.get(key)
+
+        if not self.user or self.user.name != comment.comment_author:
+            error = "Only comment author can delete."
+            self.render('error.html', error = error)
+        
+        elif self.user:
+            self.render('deletecomment.html', comment = comment)
+
+        else:
+            self.write("User not logged in!")
+        
+        if not comment:
+            self.error(404)
+            return
+            
+    def post(self, comment_id):
+        ok = self.request.get('ok')
+        if self.user:
+            key = db.Key.from_path("Comment", int(comment_id))
+            comment = db.get(key)
+
+            if ok:
+                comment.delete()
+                self.redirect('/blog/?')
+
+class CommentHistory(Handler):
+    def get(self):
+        comments = Comment.all().order('-created')
+        self.render('history.html', comments = comments)
         
 #Rot 13 Solution
 class Rot13(Handler):
@@ -361,4 +445,7 @@ app = webapp2.WSGIApplication([('/rot13', Rot13),
                                ('/blog/newpost', NewPost),
                                ('/blog/edit/([0-9]+)', EditPost),
                                ('/blog/deletepost/([0-9]+)', DeletePost),
+                               ('/blog/newcomment/([0-9]+)', NewComment),
+                               ('/blog/deletecomment/([0-9]+)', DeleteComment),
+                               ('/blog/history', CommentHistory),
                                ], debug=True)

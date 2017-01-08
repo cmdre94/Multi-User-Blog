@@ -1,0 +1,18 @@
+<div class="comment">
+  <hr>
+  <div class="post-title"><h4>Comment id {{c.key().id()}} by: {{c.comment_author}}  on post id {{c.c_post_id}}</h4></div>
+  <div class="post-content">
+    {{c._render_text | safe}}
+  </div>
+
+  {% if c.comment_author %}
+      <div id="footer">
+        <form id="edit" method="get" action="">
+            <input type="submit" value="Edit">
+        </form>
+        <form id="delete" method="get" action="/blog/deletecomment/{{(c.key().id())}}">
+          <input type="submit" value="Delete">
+        </form>
+      </div>
+    {% endif %}
+</div>

@@ -2,6 +2,11 @@
 
 {% block content %}
 	{{post.render() | safe}}
+    {% for c in comments %}
+      {% if post.key().id() == c.c_post_id %}
+        {{ c.render() | safe}}
+      {% endif %}
+    {% endfor %}
 	{% if user.name == post.author %}
     	<div id="footer">
     	  <form id="edit" method="get" action="/blog/edit/{{(post.key().id())}}">

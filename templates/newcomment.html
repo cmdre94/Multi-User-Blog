@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>New Comment</h2>
+    <form method="post">
+      <label style="display: flex;">
+        <div>AUTHOR: </div>
+        <input type="hidden" name="comment_author" value="{{user.name}}" style="width: 300px;">{{user.name}}
+      </label>
+
+      <label>
+        <div>Comment on {{post.subject}} by {{post.author}}</div>
+        <textarea name="comment_content"></textarea>
+      </label>
+
+      <div class="error">{{post.comment_error}}</div>
+
+      <input type="submit">
+    </form>
+    <form method="get" action="/blog">
+      <input id="cancel-edit" type="submit" name="cancel" value="Cancel">
+    </form>
+
+{% endblock %}
