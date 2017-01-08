@@ -7,7 +7,7 @@
 
   {% if c.comment_author %}
       <div id="footer">
-        <form id="edit" method="get" action="">
+        <form id="edit" method="get" action="/blog/editcomment/{{(c.key().id())}}">
             <input type="submit" value="Edit">
         </form>
         <form id="delete" method="get" action="/blog/deletecomment/{{(c.key().id())}}">

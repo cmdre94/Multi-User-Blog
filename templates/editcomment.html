@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="post">
+      <label style="display: flex;">
+        <div id="author">AUTHOR: {{user.name}} {{comment.key().id()}}</div>
+      </label>
+
+      <label>
+        <div>Comment</div>
+        <textarea name="comment_content">{{comment.comment_content}}</textarea>
+      </label>
+
+      <div class="error">{{comment.error}}</div>
+
+      <input type="submit">
+    </form>
+    <form method="get" action="/blog">
+      <input id="cancel-edit" type="submit" name="cancel" value="Cancel">
+    </form>
+{% endblock %}

@@ -134,7 +134,7 @@ class Post(db.Model):
 
 class Comment(db.Model):
     comment_author = db.StringProperty()
-    comment_content = db.StringProperty(required = True)
+    comment_content = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     c_post_id = db.IntegerProperty()
     
@@ -278,20 +278,59 @@ class NewComment(Handler):
             post.comment_error = "content, please!"
             self.render("newcomment.html", post = post)
 
+class EditComment(Handler):
+    def get(self, comment_id):
+        key = db.Key.from_path('Comment', int(comment_id))
+        comment = db.get(key)
+
+        if not self.user:
+            error = "Please log in or sign up"
+            self.render('error.html', error = error)
+        
+        elif self.user.name != comment.comment_author:
+            error = "Only comment author can edit."
+            self.render('error.html', error = error)
+        
+        elif self.user:
+            self.render('editcomment.html', comment = comment)
+        
+        if not comment:
+            self.error(404)
+            return
+
+    def post(self, comment_id):
+        key = db.Key.from_path('Comment', int(comment_id))
+        comment = db.get(key)
+
+        if not self.user:
+            self.redirect('/blog')
+            
+        comment_content = self.request.get('comment_content')
+
+        if comment_content:
+            comment.comment_content = comment_content
+            comment.put()
+            self.redirect('/blog/?')
+
+        else:
+            comment.error = "content, please!"
+            self.render("editcomment.html", comment = comment)
+
 class DeleteComment(Handler):
     def get(self, comment_id):
         key = db.Key.from_path('Comment', int(comment_id))
         comment = db.get(key)
 
-        if not self.user or self.user.name != comment.comment_author:
+        if not self.user:
+            error = "Please log in or sign up"
+            self.render('error.html', error = error)
+        
+        elif self.user.name != comment.comment_author:
             error = "Only comment author can delete."
             self.render('error.html', error = error)
         
         elif self.user:
             self.render('deletecomment.html', comment = comment)
-
-        else:
-            self.write("User not logged in!")
         
         if not comment:
             self.error(404)
@@ -447,5 +486,6 @@ app = webapp2.WSGIApplication([('/rot13', Rot13),
                                ('/blog/deletepost/([0-9]+)', DeletePost),
                                ('/blog/newcomment/([0-9]+)', NewComment),
                                ('/blog/deletecomment/([0-9]+)', DeleteComment),
+                               ('/blog/editcomment/([0-9]+)', EditComment),
                                ('/blog/history', CommentHistory),
                                ], debug=True)
