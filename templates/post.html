@@ -34,7 +34,7 @@
     {{p._render_text | safe}}
   </div>
   <div id="author">Author: {{p.author}} {{(p.key().id())}}</div>
-  <div id="author">Likes: </div>
+  <div id="author">Likes: {{p.total_likes}}</div>
   <!--{% if p.author %}
     <div id="footer">
       <form id="edit" method="get" action="/blog/edit/{{(p.key().id())}}">

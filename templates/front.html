@@ -26,8 +26,11 @@
 
     {% if user.name != p.author and user %}
       <div class="like-comment-buttons">
-        <form method="get" action="">
+        <form method="post" action="/like/{{((p.key().id()))}}">
             <input id="like" type="submit" name="like" value="Like">
+        </form>
+        <form method="post" action="/unlike/{{((p.key().id()))}}">
+            <input id="unlike" type="submit" name="unlike" value="Unlike">
         </form>
         <form method="get" action="/blog/newcomment/{{((p.key().id()))}}">
             <input id="comment" type="submit" name="comment" value="Comment">

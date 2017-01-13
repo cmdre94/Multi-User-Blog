@@ -126,7 +126,8 @@ class Post(db.Model):
     content = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
-    #comment = db.TextProperty()
+    total_likes = db.IntegerProperty()
+    like = db.StringProperty()
     
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
@@ -141,6 +142,10 @@ class Comment(db.Model):
     def render(self):
         self._render_text = self.comment_content.replace('\n', '<br>')
         return render_str("comment.html", c = self)
+
+#class Like(db.Model):
+#        like = db.StringProperty()
+#        like_id = db.StringProperty()
 
 class BlogFront(Handler):
     def get(self):
@@ -176,16 +181,18 @@ class NewPost(Handler):
         subject = self.request.get('subject')
         content = self.request.get('content')
         author = self.user.name
+        total_likes = 0
+        like = self.request.get('like')
         
         if subject and content:
             p = Post(parent = blog_key(), subject = subject, content = content,
-                     author = author)
+                     author = author, total_likes = total_likes, like = like)
             p.put()
             self.redirect('/blog/%s' % str(p.key().id()))
         else:
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content,
-                        error=error, author=author)
+                        error=error, author=author, total_likes=total_likes)
 
 class EditPost(Handler):
     def get(self, post_id):
@@ -350,7 +357,43 @@ class CommentHistory(Handler):
     def get(self):
         comments = Comment.all().order('-created')
         self.render('history.html', comments = comments)
+
+class NewLike(Handler):
+    def post(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        post = db.get(key)
+
+        like_button = self.request.get('like')
         
+        if like_button:
+            if post.like == self.user.name:
+                error = "You already liked this post"
+                self.render('error.html', error = error)
+            else:
+                post.like = self.user.name
+                post.total_likes += 1
+                post.put()
+                self.render('front.html')
+                self.redirect('/blog/?')
+
+class Unlike(Handler):
+    def post(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        post = db.get(key)
+
+        unlike_button = self.request.get('unlike')
+
+        if unlike_button:
+            if post.like != self.user.name:
+                error = "Only your likes can be unliked"
+                self.render('error.html', error = error)
+            else:
+                post.like = "None"
+                post.total_likes -= 1
+                post.put()
+                self.render('front.html')
+                self.redirect('/blog/?')
+                
 #Rot 13 Solution
 class Rot13(Handler):
     def get(self):
@@ -487,5 +530,7 @@ app = webapp2.WSGIApplication([('/rot13', Rot13),
                                ('/blog/newcomment/([0-9]+)', NewComment),
                                ('/blog/deletecomment/([0-9]+)', DeleteComment),
                                ('/blog/editcomment/([0-9]+)', EditComment),
+                               ('/like/([0-9]+)', NewLike),
+                               ('/unlike/([0-9]+)', Unlike),
                                ('/blog/history', CommentHistory),
                                ], debug=True)
