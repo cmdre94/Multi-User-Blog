@@ -119,7 +119,6 @@ class User(db.Model):
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
-#Added an author to the post class
 class Post(db.Model):
     author = db.StringProperty()
     subject = db.StringProperty(required = True)
@@ -142,10 +141,6 @@ class Comment(db.Model):
     def render(self):
         self._render_text = self.comment_content.replace('\n', '<br>')
         return render_str("comment.html", c = self)
-
-#class Like(db.Model):
-#        like = db.StringProperty()
-#        like_id = db.StringProperty()
 
 class BlogFront(Handler):
     def get(self):
@@ -246,7 +241,12 @@ class DeletePost(Handler):
 
             if ok:
                 post.delete()
-                self.render('front.html', post = post)
+                self.redirect('/blog/?')
+
+            else:
+                key = db.Key.from_path("Post", int(post_id), parent=blog_key())
+                post = db.get(key)
+                self.redirect('/blog/?')
 
 class NewComment(Handler):
     def get(self, post_id):
@@ -279,7 +279,7 @@ class NewComment(Handler):
                         c_post_id = c_post_id) 
             c.put()
             #self.redirect('/blog', post = post)#%s' % str(post.key().id()))
-            self.redirect('/blog/?')
+            self.redirect('/blog/%s' % str(post.key().id()))
             
         else:
             post.comment_error = "content, please!"
@@ -373,8 +373,10 @@ class NewLike(Handler):
                 post.like = self.user.name
                 post.total_likes += 1
                 post.put()
-                self.render('front.html')
                 self.redirect('/blog/?')
+
+            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            post = db.get(key) 
 
 class Unlike(Handler):
     def post(self, post_id):
@@ -385,27 +387,16 @@ class Unlike(Handler):
 
         if unlike_button:
             if post.like != self.user.name:
-                error = "Only your likes can be unliked"
+                error = "You must like before you can unlike"
                 self.render('error.html', error = error)
             else:
                 post.like = "None"
                 post.total_likes -= 1
                 post.put()
-                self.render('front.html')
                 self.redirect('/blog/?')
                 
-#Rot 13 Solution
-class Rot13(Handler):
-    def get(self):
-        self.render('rot13.html')
-
-    def post(self):
-        rot13 = ''
-        text = self.request.get('text')
-        if text:
-            rot13 = text.encode('rot13')
-
-        self.render('rot13.html', text = rot13)
+            key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+            post = db.get(key)
 
 #SIGNUP =================================================================
        
@@ -514,7 +505,7 @@ class Welcome(Handler):
         else:
             self.redirect('/unit2/signup')
 
-app = webapp2.WSGIApplication([('/rot13', Rot13),
+app = webapp2.WSGIApplication([('/', BlogFront),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
