@@ -3,7 +3,7 @@ Multi-User-Blog
 This repository can be found at:
 https://github.com/cmdre94/Multi-User-Blog.git
 
-The love version can be found at:
+The live version can be found at:
 https://multi-user-blog-155614.appspot.com/blog
 
 How to Use:
